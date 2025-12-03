@@ -15,8 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from tuttiapp import views  # Import your views here
+from django.urls import path
+from tuttiapp import views  # Import your views here. Make sure to import the views module because it contails the dashboard function
 
 urlpatterns = [
     path('admin/', admin.site.urls),
