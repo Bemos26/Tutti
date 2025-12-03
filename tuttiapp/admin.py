@@ -1,8 +1,11 @@
 from django.contrib import admin # Import the admin module used to register models in the admin interface
 from .models import User, Lesson, MpesaTransaction # Import the models we defined in models.py
+from django.contrib.auth.admin import UserAdmin # Import this!
 
 # This makes the User model visible
-admin.site.register(User) # Register the custom User model so it appears in the admin interface
+# Register the custom User model so it appears in the admin interface
+# Register User with UserAdmin so passwords get hashed
+admin.site.register(User, UserAdmin)
 
 # This makes the Lesson model visible and adds some filters
 @admin.register(Lesson) # Register the Lesson model with custom admin options

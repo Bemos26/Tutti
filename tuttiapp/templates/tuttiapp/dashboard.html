@@ -5,35 +5,75 @@
     <title>Tutti Dashboard</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        .role-badge { background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em;}
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 800px; margin: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+        .scheduled { background-color: #e3f2fd; color: #0d47a1; }
+        .paid { background-color: #e8f5e9; color: #1b5e20; }
+        .pending { background-color: #fff3e0; color: #e65100; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h1>Welcome to Tutti! 🎵</h1>
-        
-        <!-- This logic checks if the user is logged in -->
-        {% if user.is_authenticated %}
-            <p>Hello, <strong>{{ user.username }}</strong>!</p>
-            
-            <p>Your Role: 
-                {% if user.is_teacher %}
-                    <span class="role-badge">Conductor (Teacher)</span>
-                {% elif user.is_student %}
-                    <span class="role-badge">Performer (Student)</span>
-                {% else %}
-                    <span>Admin/Guest</span>
-                {% endif %}
-            </p>
+        <p>User: <strong>{{ user.username }}</strong> 
+           {% if user.is_teacher %}(Conductor){% endif %}
+           {% if user.is_student %}(Performer){% endif %}
+        </p>
 
-            <p>Your Phone: {{ user.phone_number|default:"No number added" }}</p>
+        <hr>
 
+        <h2>Your Upcoming Lessons</h2>
+
+        {% if lessons %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Topic</th>
+                        <th>With</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lesson in lessons %}
+                    <tr>
+                        <!-- Display date nicely (e.g. Dec 03, 14:00) -->
+                        <td>{{ lesson.start_time|date:"M d, H:i" }}</td>
+                        
+                        <td>{{ lesson.topic }}</td>
+                        
+                        <!-- Show the OTHER person's name -->
+                        <td>
+                            {% if user.is_teacher %}
+                                {{ lesson.student.username }}
+                            {% else %}
+                                {{ lesson.teacher.username }}
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Status Badge -->
+                        <td>
+                            {% if lesson.status == 'PAID' %}
+                                <span class="badge paid">Paid ✔</span>
+                            {% elif lesson.status == 'PENDING_PAYMENT' %}
+                                <span class="badge pending">Unpaid ⚠</span>
+                            {% else %}
+                                <span class="badge scheduled">{{ lesson.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
-            <p>You are not logged in.</p>
-            <a href="/admin/">Log in here</a>
+            <!-- This shows if the list is empty -->
+            <p style="text-align: center; padding: 20px; color: #666;">
+                No lessons found. Time to schedule some practice! 🎹
+            </p>
         {% endif %}
     </div>
 
