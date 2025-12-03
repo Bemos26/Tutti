@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from tuttiapp import views  # Import your views here
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('tuttiapp.urls')), # Include URLs from tuttiapp ie we are registering the app's URLs at the root
+    
+    # When someone visits the homepage (''), call the dashboard view
+    path('', views.dashboard, name='dashboard'), # this means that dashboard is the homepage
 ]
