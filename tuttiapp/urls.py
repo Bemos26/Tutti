@@ -19,5 +19,4 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('tuttiapp.urls')), # Include URLs from tuttiapp ie we are registering the app's URLs at the root
 ]
