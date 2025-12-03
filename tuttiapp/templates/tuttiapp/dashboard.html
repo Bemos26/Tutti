@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tutti Dashboard</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .role-badge { background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 0.8em;}
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Welcome to Tutti! 🎵</h1>
+        
+        <!-- This logic checks if the user is logged in -->
+        {% if user.is_authenticated %}
+            <p>Hello, <strong>{{ user.username }}</strong>!</p>
+            
+            <p>Your Role: 
+                {% if user.is_teacher %}
+                    <span class="role-badge">Conductor (Teacher)</span>
+                {% elif user.is_student %}
+                    <span class="role-badge">Performer (Student)</span>
+                {% else %}
+                    <span>Admin/Guest</span>
+                {% endif %}
+            </p>
+
+            <p>Your Phone: {{ user.phone_number|default:"No number added" }}</p>
+
+        {% else %}
+            <p>You are not logged in.</p>
+            <a href="/admin/">Log in here</a>
+        {% endif %}
+    </div>
+
+</body>
+</html>
