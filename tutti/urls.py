@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from tuttiapp import views  # Import your views here. Make sure to import the views module because it contails the dashboard function
 
 urlpatterns = [
@@ -23,4 +23,7 @@ urlpatterns = [
     
     # When someone visits the homepage (''), call the dashboard view
     path('', views.dashboard, name='dashboard'), # this means that dashboard is the homepage
+    
+    #It enables /accounts/login/ and /accounts/logout/
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
