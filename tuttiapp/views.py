@@ -121,3 +121,45 @@ def initiate_payment(request, lesson_id):
         messages.error(request, f"Error connecting to M-Pesa: {str(e)}")
     
     return redirect('dashboard')
+
+
+
+# ==========================================
+from .forms import LessonRequestForm, LessonRescheduleForm # Import the new form for rescheduling
+# 5. RESCHEDULING LESSONS
+
+# 1. TEACHER: Change the time
+@login_required
+def reschedule_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    # Security: Only the teacher can reschedule
+    if request.user != lesson.teacher:
+        messages.error(request, "Only the conductor can reschedule.")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = LessonRescheduleForm(request.POST, instance=lesson)
+        if form.is_valid():
+            lesson = form.save(commit=False)
+            lesson.status = 'RESCHEDULE_PENDING' # Change status so student sees it
+            lesson.save()
+            messages.success(request, "Reschedule proposal sent to student.")
+            return redirect('dashboard')
+    else:
+        # Pre-fill the form with the current data
+        form = LessonRescheduleForm(instance=lesson)
+
+    return render(request, 'tuttiapp/reschedule_form.html', {'form': form, 'lesson': lesson})
+
+# 2. STUDENT: Accept the new time
+@login_required
+def accept_reschedule(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    if request.user == lesson.student:
+        lesson.status = 'SCHEDULED' # Make it official again
+        lesson.save()
+        messages.success(request, "New time accepted!")
+    
+    return redirect('dashboard')
