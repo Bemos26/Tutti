@@ -15,7 +15,7 @@ class LessonRequestForm(forms.ModelForm):
         }
         
         
-class LessonRescheduleForm(forms.ModelForm):
+class LessonRescheduleForm(forms.ModelForm): # Form for rescheduling lessons. Used by teachers. 
     class Meta:
         model = Lesson
         fields = ['start_time', 'topic']
