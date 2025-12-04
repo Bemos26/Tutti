@@ -23,6 +23,7 @@ class User(AbstractUser):
 # --- 3. THE LESSON (The Core Logic) ---
 class Lesson(models.Model):
     STATUS_CHOICES = [
+        ('REQUESTED', 'Requested'),  # Student requested a lesson
         ('SCHEDULED', 'Scheduled'),
         ('COMPLETED', 'Completed'),       # Lesson happened, teacher marked it
         ('PENDING_PAYMENT', 'Pending Payment'), # Waiting for M-Pesa
