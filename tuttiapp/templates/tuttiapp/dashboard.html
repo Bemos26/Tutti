@@ -77,5 +77,33 @@
         {% endif %}
     </div>
 
+    <!-- New Section for Requested Lessons -->
+
+<td>
+    {% if lesson.status == 'REQUESTED' %}
+        
+        {% if user.is_teacher %}
+            <!-- Teacher sees Action Buttons -->
+            <a href="{% url 'approve_lesson' lesson.id %}" style="color: green;">✔ Accept</a> |
+            <a href="{% url 'decline_lesson' lesson.id %}" style="color: red;">✖ Decline</a>
+        {% else %}
+            <!-- Student sees Waiting status -->
+            <span class="badge pending">Waiting Approval...</span>
+        {% endif %}
+
+    {% elif lesson.status == 'PAID' %}
+        <!-- ... your existing logic ... -->
+    {% endif %}
+    <!-- ... -->
+</td>
+```
+
+And add a "Find a Teacher" button at the top of the dashboard for Students:
+
+```html
+{% if user.is_student %}
+    <a href="{% url 'teacher_list' %}" class="btn" style="background-color: purple; color: white; padding: 10px; text-decoration: none; border-radius: 5px;">🔍 Find a Teacher</a>
+{% endif %}
+
 </body>
 </html>
