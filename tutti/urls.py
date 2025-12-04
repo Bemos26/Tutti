@@ -37,4 +37,6 @@ urlpatterns = [
     path('pay/<int:lesson_id>/', views.initiate_payment, name='initiate_payment'), # New URL pattern for initiating payment
     
     path('mpesa/callback/', views.mpesa_callback, name='mpesa_callback'), # New URL pattern for M-Pesa callback
+    
+    path('complete/<int:lesson_id>/', views.complete_lesson, name='complete_lesson'), # New URL pattern for completing a lesson
 ]
