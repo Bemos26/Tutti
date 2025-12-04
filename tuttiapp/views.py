@@ -1,42 +1,86 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Lesson
+from django.contrib import messages
+from .models import Lesson, MpesaTransaction, User
+# from django_daraja.mpesa.core import MpesaClient
+from .forms import LessonRequestForm
 
-@login_required # Ensure the user is logged in to access the dashboard
+# ==========================================
+# 1. THE DASHBOARD (Home Base)
+# ==========================================
+@login_required
 def dashboard(request):
     user = request.user
     
-    # Logic: 
-    # 1. If I am a teacher, find lessons where I am the 'teacher'
-    # 2. If I am a student, find lessons where I am the 'student'
-    
+    # Logic: Filter lessons based on who is logged in
     if user.is_teacher:
-        my_lessons = Lesson.objects.filter(teacher=user)
+        my_lessons = Lesson.objects.filter(teacher=user).order_by('start_time')
     elif user.is_student:
-        my_lessons = Lesson.objects.filter(student=user)
+        my_lessons = Lesson.objects.filter(student=user).order_by('start_time')
     else:
-        # If I am neither (e.g. just an admin), show nothing
         my_lessons = Lesson.objects.none()
 
-    # context is the package of data we send to the HTML
     context = {
         'lessons': my_lessons
     }
     
-    return render(request, 'tuttiapp/dashboard.html', context) #this means we dont have to have a seperate urls in the tuttiapp. we can add all the urls directly to the urls file that already exists in the main project folder
+    return render(request, 'tuttiapp/dashboard.html', context)
 
 
+# ==========================================
+# 2. MARKETPLACE (Find & Request Teachers)
+# ==========================================
+@login_required
+def teacher_list(request):
+    """Displays a list of all users marked as teachers."""
+    teachers = User.objects.filter(is_teacher=True)
+    return render(request, 'tuttiapp/teacher_list.html', {'teachers': teachers})
 
+@login_required
+def request_lesson(request, teacher_id):
+    """Handles the form where a student requests a lesson."""
+    target_teacher = get_object_or_404(User, pk=teacher_id)
+    
+    if request.method == 'POST':
+        form = LessonRequestForm(request.POST)
+        if form.is_valid():
+            # Create the lesson object but don't save to DB yet
+            lesson = form.save(commit=False)
+            
+            # Fill in the missing data
+            lesson.student = request.user
+            lesson.teacher = target_teacher
+            lesson.status = 'REQUESTED'  # Important!
+            
+            lesson.save()
+            
+            messages.success(request, f"Request sent to {target_teacher.username}!")
+            return redirect('dashboard')
+    else:
+        form = LessonRequestForm()
+
+    context = {
+        'form': form,
+        'teacher': target_teacher
+    }
+    return render(request, 'tuttiapp/request_lesson.html', context)
+
+
+# ==========================================
+# 3. TEACHER ACTIONS (Approve/Decline)
+# ==========================================
 @login_required
 def approve_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     
-    # Security: Ensure only the assigned teacher can approve
+    # Security check: Only the assigned teacher can approve
     if request.user == lesson.teacher:
         lesson.status = 'SCHEDULED'
         lesson.save()
-        messages.success(request, "Lesson confirmed!")
-    
+        messages.success(request, "Lesson Confirmed!")
+    else:
+        messages.error(request, "You are not authorized to approve this.")
+        
     return redirect('dashboard')
 
 @login_required
@@ -44,7 +88,36 @@ def decline_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     
     if request.user == lesson.teacher:
-        lesson.delete() # Or set status to 'CANCELLED'
+        lesson.delete() # Or you could set status to 'CANCELLED'
         messages.warning(request, "Request declined.")
         
+    return redirect('dashboard')
+
+
+# ==========================================
+# 4. PAYMENTS (M-Pesa Integration)
+# ==========================================
+@login_required
+def initiate_payment(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    # Check for phone number
+    if not request.user.phone_number:
+        messages.error(request, "Please add a phone number to your profile first!")
+        return redirect('dashboard')
+        
+    # Setup M-Pesa Client
+    client = MpesaClient()
+    phone_number = request.user.phone_number
+    amount = int(lesson.price)
+    account_reference = f"Lesson {lesson.id}"
+    transaction_desc = f"Payment for {lesson.topic}"
+    callback_url = 'https://mydomain.com/callback' # We'll fix this later
+    
+    try:
+        response = client.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+        messages.success(request, f"STK Push sent to {phone_number}. Check your phone!")
+    except Exception as e:
+        messages.error(request, f"Error connecting to M-Pesa: {str(e)}")
+    
     return redirect('dashboard')
