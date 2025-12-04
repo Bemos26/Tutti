@@ -1,6 +1,9 @@
 from django import forms
 from .models import Lesson
 
+#i created this form to handle lesson requests by students
+#it uses django's ModelForm to automatically generate form fields based on the Lesson model
+
 class LessonRequestForm(forms.ModelForm):
     class Meta:
         model = Lesson
@@ -9,4 +12,14 @@ class LessonRequestForm(forms.ModelForm):
             # This makes a nice calendar popup in the browser
             'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'topic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Jazz Piano Basics'})
+        }
+        
+        
+class LessonRescheduleForm(forms.ModelForm):
+    class Meta:
+        model = Lesson
+        fields = ['start_time', 'topic']
+        widgets = {
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'topic': forms.TextInput(attrs={'class': 'form-control'})
         }
