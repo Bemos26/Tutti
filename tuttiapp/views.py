@@ -242,3 +242,23 @@ def mpesa_callback(request):
             print(f"Callback Error: {e}")
             
     return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
+
+
+@login_required
+def complete_lesson(request, lesson_id):
+    """
+    Teacher marks the lesson as finished.
+    This triggers the status change to PENDING_PAYMENT,
+    which reveals the Pay button to the student.
+    """
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    # Security: Only the teacher can do this
+    if request.user == lesson.teacher:
+        lesson.status = 'PENDING_PAYMENT'
+        lesson.save()
+        messages.success(request, "Lesson marked as Complete. Payment requested from student.")
+    else:
+        messages.error(request, "You are not authorized to manage this lesson.")
+        
+    return redirect('dashboard')
