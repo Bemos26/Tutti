@@ -32,4 +32,6 @@ urlpatterns = [
     path('request/<int:teacher_id>/', views.request_lesson, name='request_lesson'), # New URL pattern for requesting a lesson
     path('approve/<int:lesson_id>/', views.approve_lesson, name='approve_lesson'), # New URL pattern for approving a lesson
     path('decline/<int:lesson_id>/', views.decline_lesson, name='decline_lesson'), # New URL pattern for declining a lesson
+    path('reschedule/<int:lesson_id>/', views.reschedule_lesson, name='reschedule_lesson'), # New URL pattern for rescheduling a lesson
+    path('accept-reschedule/<int:lesson_id>/', views.accept_reschedule, name='accept_reschedule'), # New URL pattern for accepting a reschedule
 ]
