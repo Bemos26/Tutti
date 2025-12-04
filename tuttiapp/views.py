@@ -262,3 +262,22 @@ def complete_lesson(request, lesson_id):
         messages.error(request, "You are not authorized to manage this lesson.")
         
     return redirect('dashboard')
+
+
+
+@login_required
+def mark_lesson_paid(request, lesson_id):
+    """
+    Manual override for cash payments or testing.
+    Only the Teacher can perform this.
+    """
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    if request.user == lesson.teacher:
+        lesson.status = 'PAID'
+        lesson.save()
+        messages.success(request, "Payment recorded manually (Cash/Test).")
+    else:
+        messages.error(request, "Not authorized.")
+        
+    return redirect('dashboard')
