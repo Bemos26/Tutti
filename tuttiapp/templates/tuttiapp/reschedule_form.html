@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reschedule Lesson</title>
+    <style>body { font-family: sans-serif; padding: 40px; background-color: #f4f4f9; }</style>
+</head>
+<body>
+    <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; margin: auto;">
+        <h2>Reschedule Lesson</h2>
+        <p>Current Student: <strong>{{ lesson.student.username }}</strong></p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <p><strong>New Date & Time:</strong> {{ form.start_time }}</p>
+            <p><strong>Topic (Optional Update):</strong> {{ form.topic }}</p>
+            
+            <button type="submit" style="background: orange; color: white; padding: 10px; border: none; cursor: pointer;">Propose New Time</button>
+        </form>
+        <br>
+        <a href="{% url 'dashboard' %}">Cancel</a>
+    </div>
+</body>
+</html>
