@@ -26,4 +26,10 @@ urlpatterns = [
     
     #It enables /accounts/login/ and /accounts/logout/
     path('accounts/', include('django.contrib.auth.urls')),
+    
+    
+    path('teachers/', views.teacher_list, name='teacher_list'), # New URL pattern for listing teachers
+    path('request/<int:teacher_id>/', views.request_lesson, name='request_lesson'), # New URL pattern for requesting a lesson
+    path('approve/<int:lesson_id>/', views.approve_lesson, name='approve_lesson'), # New URL pattern for approving a lesson
+    path('decline/<int:lesson_id>/', views.decline_lesson, name='decline_lesson'), # New URL pattern for declining a lesson
 ]
