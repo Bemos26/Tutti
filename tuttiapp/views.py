@@ -167,8 +167,8 @@ def initiate_payment(request, lesson_id):
                 account_reference = f"Tutti-{lesson.id}"
                 transaction_desc = f"Lesson: {lesson.topic}"
                 
-                # IMPORTANT: This URL must be accessible from the internet (Use Ngrok for local testing)
-                callback_url = 'https://YOUR-NGROK-URL.ngrok-free.app/mpesa/callback/'
+                # IMPORTANT: This URL must be accessible from the internet
+                callback_url = 'https://example.com/mpesa/callback/'  # Replace with your actual callback URL. i have just used a dummy one here.
                 
                 # 3. Fire STK Push
                 response = client.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
