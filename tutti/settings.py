@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tuttiapp',
+    'django_daraja',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,16 @@ LOGIN_REDIRECT_URL = 'dashboard'
 
 # Where to go after logging out (The Login Page)
 LOGOUT_REDIRECT_URL = 'login'
+
+from dotenv import load_dotenv
+import os
+load_dotenv()  # take environment variables from .env.file
+# M-Pesa Configuration (Sandbox)
+MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')  # 'sandbox' or 'production'
+MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+# Default Sandbox Credentials (Do not change these for testing)
+MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
+MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+MPESA_EXPRESS_SHORTCODE = os.getenv('MPESA_EXPRESS_SHORTCODE')
+MPESA_SHORTCODE_TYPE = os.getenv('MPESA_SHORTCODE_TYPE')

@@ -1,5 +1,6 @@
 from django import forms
 from .models import Lesson
+from django.core.validators import RegexValidator
 
 #i created this form to handle lesson requests by students
 #it uses django's ModelForm to automatically generate form fields based on the Lesson model
@@ -23,3 +24,15 @@ class LessonRescheduleForm(forms.ModelForm): # Form for rescheduling lessons. Us
             'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
             'topic': forms.TextInput(attrs={'class': 'form-control'})
         }
+        
+        
+        
+
+
+class MpesaPaymentForm(forms.Form):
+    phone_number = forms.CharField(
+        label="M-Pesa Number",
+        max_length=15,
+        help_text="Format: 07XX... or 01XX...",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '0712345678'})
+    )
