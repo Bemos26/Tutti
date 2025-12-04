@@ -98,13 +98,22 @@
                                         <a href="{% url 'complete_lesson' lesson.id %}" class="btn-complete">✓ Mark Complete</a>
                                     {% endif %}
 
+                                    
                                 {% elif lesson.status == 'PENDING_PAYMENT' %}
-                                    <!-- This is the part that was likely missing! -->
-                                    {% if user.is_student %}
-                                        <a href="{% url 'initiate_payment' lesson.id %}" class="btn-pay">Pay via M-Pesa</a>
-                                    {% else %}
-                                        <span class="badge pending">Unpaid ⚠</span>
-                                    {% endif %}
+    
+                                        {% if user.is_student %}
+                                            <!-- Student sees M-Pesa Button -->
+                                                 <a href="{% url 'initiate_payment' lesson.id %}" class="btn-pay">Pay via M-Pesa</a>
+    
+                                {% else %}
+                                    <!-- Teacher sees status AND Manual Override -->
+                                    <span class="badge pending">Unpaid ⚠</span>
+                                    <br>
+                                    <a href="{% url 'mark_lesson_paid' lesson.id %}" style="font-size: 0.8em; color: #28a745; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 5px;">
+                                        Record Cash / Manual Pay
+                                    </a>
+    {% endif %}
+
 
                                 {% elif lesson.status == 'RESCHEDULE_PENDING' %}
                                     {% if user.is_student %}
