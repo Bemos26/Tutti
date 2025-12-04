@@ -24,3 +24,27 @@ def dashboard(request):
     }
     
     return render(request, 'tuttiapp/dashboard.html', context) #this means we dont have to have a seperate urls in the tuttiapp. we can add all the urls directly to the urls file that already exists in the main project folder
+
+
+
+@login_required
+def approve_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    # Security: Ensure only the assigned teacher can approve
+    if request.user == lesson.teacher:
+        lesson.status = 'SCHEDULED'
+        lesson.save()
+        messages.success(request, "Lesson confirmed!")
+    
+    return redirect('dashboard')
+
+@login_required
+def decline_lesson(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    if request.user == lesson.teacher:
+        lesson.delete() # Or set status to 'CANCELLED'
+        messages.warning(request, "Request declined.")
+        
+    return redirect('dashboard')
