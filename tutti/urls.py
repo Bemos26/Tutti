@@ -34,4 +34,7 @@ urlpatterns = [
     path('decline/<int:lesson_id>/', views.decline_lesson, name='decline_lesson'), # New URL pattern for declining a lesson
     path('reschedule/<int:lesson_id>/', views.reschedule_lesson, name='reschedule_lesson'), # New URL pattern for rescheduling a lesson
     path('accept-reschedule/<int:lesson_id>/', views.accept_reschedule, name='accept_reschedule'), # New URL pattern for accepting a reschedule
+    path('pay/<int:lesson_id>/', views.initiate_payment, name='initiate_payment'), # New URL pattern for initiating payment
+    
+    path('mpesa/callback/', views.mpesa_callback, name='mpesa_callback'), # New URL pattern for M-Pesa callback
 ]
