@@ -1,0 +1,12 @@
+from django import forms
+from .models import Lesson
+
+class LessonRequestForm(forms.ModelForm):
+    class Meta:
+        model = Lesson
+        fields = ['topic', 'start_time']
+        widgets = {
+            # This makes a nice calendar popup in the browser
+            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'topic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Jazz Piano Basics'})
+        }
