@@ -123,3 +123,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'tuttiapp.User'  #Allows us to use custom user model defined in tuttiapp/models.py instead of default Django User model
+
+# Where to go after logging in (The Dashboard)
+LOGIN_REDIRECT_URL = 'dashboard'
+
+# Where to go after logging out (The Login Page)
+LOGOUT_REDIRECT_URL = 'login'

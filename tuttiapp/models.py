@@ -4,6 +4,10 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 import re
 
+#EVERY TIME YOU ADD A NEW MODE MAKE SURE TO RUN:
+# python manage.py makemigrations
+# python manage.py migrate
+
 # --- 1. THE HELPER (Phone Sanitizer) ---
 # This ensures that if a user enters "0712..." it saves as "254712..."
 def validate_kenyan_phone(value):
@@ -25,6 +29,7 @@ class Lesson(models.Model):
     STATUS_CHOICES = [
         ('REQUESTED', 'Requested'),  # Student requested a lesson
         ('SCHEDULED', 'Scheduled'),
+        ('RESCHEDULE_PENDING', 'Reschedule Pending'), # Teacher requested reschedule
         ('COMPLETED', 'Completed'),       # Lesson happened, teacher marked it
         ('PENDING_PAYMENT', 'Pending Payment'), # Waiting for M-Pesa
         ('PAID', 'Paid'),                 # Money received
