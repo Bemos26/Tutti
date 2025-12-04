@@ -112,7 +112,7 @@
                                     <a href="{% url 'mark_lesson_paid' lesson.id %}" style="font-size: 0.8em; color: #28a745; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 5px;">
                                         Record Cash / Manual Pay
                                     </a>
-    {% endif %}
+        {% endif %}
 
 
                                 {% elif lesson.status == 'RESCHEDULE_PENDING' %}
@@ -130,7 +130,7 @@
                                     {{ lesson.get_status_display }}
                                 {% endif %}
 
-                                <!-- === LOGIC END === -->
+                            
                             </td>
                         </tr>
                         {% endfor %}
