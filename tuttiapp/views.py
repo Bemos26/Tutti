@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Lesson, MpesaTransaction, User
-# from django_daraja.mpesa.core import MpesaClient
+from django_daraja.mpesa.core import MpesaClient
 from .forms import LessonRequestForm
 
 # ==========================================
