@@ -7,6 +7,7 @@ import re
 #EVERY TIME YOU ADD A NEW MODE MAKE SURE TO RUN:
 # python manage.py makemigrations
 # python manage.py migrate
+# This file contains all the database models for the Tutti app
 
 # --- 1. THE HELPER (Phone Sanitizer) ---
 # This ensures that if a user enters "0712..." it saves as "254712..."
