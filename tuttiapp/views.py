@@ -5,6 +5,12 @@ from .models import Lesson, MpesaTransaction, User
 from django_daraja.mpesa.core import MpesaClient
 from .forms import LessonRequestForm
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .forms import MpesaPaymentForm
+from .models import validate_kenyan_phone
+
 # ==========================================
 # 1. THE DASHBOARD (Home Base)
 # ==========================================
@@ -94,33 +100,9 @@ def decline_lesson(request, lesson_id):
     return redirect('dashboard')
 
 
-# ==========================================
-# 4. PAYMENTS (M-Pesa Integration)
-# ==========================================
-@login_required
-def initiate_payment(request, lesson_id):
-    lesson = get_object_or_404(Lesson, pk=lesson_id)
+# ==================================
+# ==================================
     
-    # Check for phone number
-    if not request.user.phone_number:
-        messages.error(request, "Please add a phone number to your profile first!")
-        return redirect('dashboard')
-        
-    # Setup M-Pesa Client
-    client = MpesaClient()
-    phone_number = request.user.phone_number
-    amount = int(lesson.price)
-    account_reference = f"Lesson {lesson.id}"
-    transaction_desc = f"Payment for {lesson.topic}"
-    callback_url = 'https://mydomain.com/callback' # We'll fix this later
-    
-    try:
-        response = client.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
-        messages.success(request, f"STK Push sent to {phone_number}. Check your phone!")
-    except Exception as e:
-        messages.error(request, f"Error connecting to M-Pesa: {str(e)}")
-    
-    return redirect('dashboard')
 
 
 
@@ -163,3 +145,100 @@ def accept_reschedule(request, lesson_id):
         messages.success(request, "New time accepted!")
     
     return redirect('dashboard')
+
+
+# 1. THE PAYMENT PAGE (Show Form & Trigger STK)
+@login_required
+def initiate_payment(request, lesson_id):
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    if request.method == 'POST':
+        form = MpesaPaymentForm(request.POST)
+        if form.is_valid():
+            raw_phone = form.cleaned_data['phone_number']
+            
+            try:
+                # 1. Sanitize the phone number (07XX -> 2547XX)
+                phone_number = validate_kenyan_phone(raw_phone)
+                
+                # 2. Setup M-Pesa Client
+                client = MpesaClient()
+                amount = int(lesson.price)
+                account_reference = f"Tutti-{lesson.id}"
+                transaction_desc = f"Lesson: {lesson.topic}"
+                
+                # IMPORTANT: This URL must be accessible from the internet (Use Ngrok for local testing)
+                callback_url = 'https://YOUR-NGROK-URL.ngrok-free.app/mpesa/callback/'
+                
+                # 3. Fire STK Push
+                response = client.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+                
+                # 4. Save the Checkout Request ID to track the payment
+                # Note: response is an object, we access attributes directly
+                if response.response_code == '0':
+                    MpesaTransaction.objects.create(
+                        lesson=lesson,
+                        checkout_request_id=response.checkout_request_id,
+                        phone_number=phone_number,
+                        amount=amount
+                    )
+                    messages.success(request, f"STK Push sent to {phone_number}. Enter your PIN!")
+                else:
+                    messages.error(request, f"M-Pesa Error: {response.response_description}")
+
+                return redirect('dashboard')
+                
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+    else:
+        # Pre-fill with user's profile number if it exists
+        initial_data = {'phone_number': request.user.phone_number} if request.user.phone_number else {}
+        form = MpesaPaymentForm(initial=initial_data)
+
+    return render(request, 'tuttiapp/pay_confirm.html', {'form': form, 'lesson': lesson})
+
+
+# 2. THE CALLBACK (Safaricom talks to us)
+@csrf_exempt # Safaricom doesn't have our CSRF token, so we exempt this view
+def mpesa_callback(request):
+    if request.method == 'POST':
+        try:
+            # 1. Parse the JSON response
+            body = json.loads(request.body)
+            stk_callback = body.get('Body', {}).get('stkCallback', {})
+            
+            result_code = stk_callback.get('ResultCode')
+            checkout_id = stk_callback.get('CheckoutRequestID')
+            result_desc = stk_callback.get('ResultDesc')
+
+            # 2. Find the transaction
+            transaction = MpesaTransaction.objects.get(checkout_request_id=checkout_id)
+            
+            # 3. Update Transaction Status
+            if result_code == 0:
+                # Success!
+                transaction.is_successful = True
+                transaction.result_desc = "Payment Successful"
+                
+                # Extract Receipt Number
+                items = stk_callback.get('CallbackMetadata', {}).get('Item', [])
+                for item in items:
+                    if item.get('Name') == 'MpesaReceiptNumber':
+                        transaction.mpesa_receipt_number = item.get('Value')
+                
+                transaction.save()
+                
+                # 4. MARK LESSON AS PAID
+                lesson = transaction.lesson
+                lesson.status = 'PAID'
+                lesson.save()
+            else:
+                # User cancelled or failed
+                transaction.is_successful = False
+                transaction.result_desc = result_desc
+                transaction.save()
+                
+        except Exception as e:
+            print(f"Callback Error: {e}")
+            
+    return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
