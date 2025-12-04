@@ -74,36 +74,41 @@
                                     {{ lesson.teacher.username }}
                                 {% endif %}
                             </td>
-                            <td>
-                                <!-- === LOGIC START === -->
-                                
-                                {% if lesson.status == 'REQUESTED' %}
-                                    <!-- If it is requested, check WHO is looking at it -->
-                                    {% if user.is_teacher %}
-                                        <!-- Teacher sees buttons -->
-                                        <a href="{% url 'approve_lesson' lesson.id %}" class="btn-accept">✔ Accept</a>
-                                        <a href="{% url 'decline_lesson' lesson.id %}" class="btn-decline">✖ Decline</a>
-                                    {% else %}
-                                        <!-- Student sees badge -->
-                                        <span class="badge requested">Waiting Approval...</span>
-                                    {% endif %}
+                            
+<td>
+    {% if lesson.status == 'REQUESTED' %}
+        <!-- ... (Keep existing requested logic) ... -->
+        {% if user.is_teacher %}
+            <a href="{% url 'approve_lesson' lesson.id %}" class="btn-accept">✔ Accept</a>
+            <a href="{% url 'decline_lesson' lesson.id %}" class="btn-decline">✖ Decline</a>
+        {% else %}
+            <span class="badge requested">Waiting Approval...</span>
+        {% endif %}
 
-                                {% elif lesson.status == 'PENDING_PAYMENT' %}
-                                    {% if user.is_student %}
-                                        <a href="{% url 'initiate_payment' lesson.id %}" class="btn-pay">Pay via M-Pesa</a>
-                                    {% else %}
-                                        <span class="badge pending">Unpaid ⚠</span>
-                                    {% endif %}
+    {% elif lesson.status == 'SCHEDULED' %}
+        <span class="badge scheduled">Scheduled</span>
+        <!-- NEW: Teacher can Reschedule -->
+        {% if user.is_teacher %}
+            <a href="{% url 'reschedule_lesson' lesson.id %}" style="font-size:0.8em; margin-left:10px; color: orange;">✎ Edit</a>
+        {% endif %}
 
-                                {% elif lesson.status == 'PAID' %}
-                                    <span class="badge paid">Paid ✔</span>
+    {% elif lesson.status == 'RESCHEDULE_PENDING' %}
+        <!-- NEW STATUS LOGIC -->
+        {% if user.is_student %}
+            <span style="display:block; font-size: 0.8em; color: orange;">New Time Proposed!</span>
+            <a href="{% url 'accept_reschedule' lesson.id %}" class="btn-accept">✔ Confirm Change</a>
+        {% else %}
+            <span class="badge requested">Waiting for student confirmation...</span>
+        {% endif %}
 
-                                {% else %}
-                                    <span class="badge scheduled">{{ lesson.get_status_display }}</span>
-                                {% endif %}
-
-                                <!-- === LOGIC END === -->
-                            </td>
+    {% elif lesson.status == 'PENDING_PAYMENT' %}
+        <!-- ... (Keep existing payment logic) ... -->
+        
+    {% elif lesson.status == 'PAID' %}
+        <span class="badge paid">Paid ✔</span>
+        
+    {% endif %}
+</td>
                         </tr>
                         {% endfor %}
                     </tbody>
