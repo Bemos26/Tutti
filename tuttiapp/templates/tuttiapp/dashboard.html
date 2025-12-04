@@ -11,11 +11,12 @@
         th { background-color: #f8f9fa; }
         
         /* Badges */
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; }
+        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; display: inline-block; }
         .scheduled { background-color: #e3f2fd; color: #0d47a1; }
         .paid { background-color: #e8f5e9; color: #1b5e20; }
         .pending { background-color: #fff3e0; color: #e65100; }
         .requested { background-color: #f3e5f5; color: #4a148c; }
+        .reschedule { background-color: #fff8e1; color: #f57f17; }
         
         .role-badge { background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin-left: 5px;}
         
@@ -24,6 +25,8 @@
         .btn-find { background-color: purple; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;}
         .btn-accept { color: green; font-weight: bold; text-decoration: none; margin-right: 10px; }
         .btn-decline { color: red; font-weight: bold; text-decoration: none; }
+        .btn-complete { background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; text-decoration: none; display: inline-block; margin-top: 5px; }
+        .btn-edit { font-size:0.8em; margin-left:5px; color: orange; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -45,7 +48,6 @@
 
             <hr>
 
-            <!-- Student Action Button -->
             {% if user.is_student %}
                 <a href="{% url 'teacher_list' %}" class="btn-find">🔍 Find a Teacher</a>
             {% endif %}
@@ -59,7 +61,7 @@
                             <th>Date & Time</th>
                             <th>Topic</th>
                             <th>With</th>
-                            <th>Status</th>
+                            <th>Status & Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -74,41 +76,53 @@
                                     {{ lesson.teacher.username }}
                                 {% endif %}
                             </td>
-                            
-<td>
-    {% if lesson.status == 'REQUESTED' %}
-        <!-- ... (Keep existing requested logic) ... -->
-        {% if user.is_teacher %}
-            <a href="{% url 'approve_lesson' lesson.id %}" class="btn-accept">✔ Accept</a>
-            <a href="{% url 'decline_lesson' lesson.id %}" class="btn-decline">✖ Decline</a>
-        {% else %}
-            <span class="badge requested">Waiting Approval...</span>
-        {% endif %}
+                            <td>
+                                <!-- === LOGIC START === -->
+                                
+                                {% if lesson.status == 'REQUESTED' %}
+                                    {% if user.is_teacher %}
+                                        <a href="{% url 'approve_lesson' lesson.id %}" class="btn-accept">✔ Accept</a>
+                                        <a href="{% url 'decline_lesson' lesson.id %}" class="btn-decline">✖ Decline</a>
+                                    {% else %}
+                                        <span class="badge requested">Waiting Approval...</span>
+                                    {% endif %}
 
-    {% elif lesson.status == 'SCHEDULED' %}
-        <span class="badge scheduled">Scheduled</span>
-        <!-- NEW: Teacher can Reschedule -->
-        {% if user.is_teacher %}
-            <a href="{% url 'reschedule_lesson' lesson.id %}" style="font-size:0.8em; margin-left:10px; color: orange;">✎ Edit</a>
-        {% endif %}
+                                {% elif lesson.status == 'SCHEDULED' %}
+                                    <span class="badge scheduled">Scheduled</span>
+                                    
+                                    {% if user.is_teacher %}
+                                        <!-- Edit Button -->
+                                        <a href="{% url 'reschedule_lesson' lesson.id %}" class="btn-edit">✎ Edit</a>
+                                        <br>
+                                        <!-- Mark Complete Button -->
+                                        <a href="{% url 'complete_lesson' lesson.id %}" class="btn-complete">✓ Mark Complete</a>
+                                    {% endif %}
 
-    {% elif lesson.status == 'RESCHEDULE_PENDING' %}
-        <!-- NEW STATUS LOGIC -->
-        {% if user.is_student %}
-            <span style="display:block; font-size: 0.8em; color: orange;">New Time Proposed!</span>
-            <a href="{% url 'accept_reschedule' lesson.id %}" class="btn-accept">✔ Confirm Change</a>
-        {% else %}
-            <span class="badge requested">Waiting for student confirmation...</span>
-        {% endif %}
+                                {% elif lesson.status == 'PENDING_PAYMENT' %}
+                                    <!-- This is the part that was likely missing! -->
+                                    {% if user.is_student %}
+                                        <a href="{% url 'initiate_payment' lesson.id %}" class="btn-pay">Pay via M-Pesa</a>
+                                    {% else %}
+                                        <span class="badge pending">Unpaid ⚠</span>
+                                    {% endif %}
 
-    {% elif lesson.status == 'PENDING_PAYMENT' %}
-        <!-- ... (Keep existing payment logic) ... -->
-        
-    {% elif lesson.status == 'PAID' %}
-        <span class="badge paid">Paid ✔</span>
-        
-    {% endif %}
-</td>
+                                {% elif lesson.status == 'RESCHEDULE_PENDING' %}
+                                    {% if user.is_student %}
+                                        <span style="display:block; font-size: 0.8em; color: orange;">New Time Proposed!</span>
+                                        <a href="{% url 'accept_reschedule' lesson.id %}" class="btn-accept">✔ Confirm</a>
+                                    {% else %}
+                                        <span class="badge reschedule">Waiting confirmation...</span>
+                                    {% endif %}
+
+                                {% elif lesson.status == 'PAID' %}
+                                    <span class="badge paid">Paid ✔</span>
+
+                                {% else %}
+                                    {{ lesson.get_status_display }}
+                                {% endif %}
+
+                                <!-- === LOGIC END === -->
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
