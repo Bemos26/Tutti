@@ -1,0 +1,28 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find a Conductor</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn { background-color: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px; display: inline-block;}
+    </style>
+</head>
+<body>
+    <h1>Find a Conductor 🎻</h1>
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+    <hr>
+    
+    {% for teacher in teachers %}
+    <div class="card">
+        <h3>{{ teacher.username }}</h3>
+        <p>Email: {{ teacher.email }}</p>
+        <a href="{% url 'request_lesson' teacher.id %}" class="btn">Request Lesson</a>
+    </div>
+    {% empty %}
+        <p>No teachers found.</p>
+    {% endfor %}
+</body>
+</html>
