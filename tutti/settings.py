@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os # Import os to handle environment variables
+import dj_database_url # Import dj_database_url to handle database URLs when deploying on Render.com
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-04o2b12+d)@n#&fmsa4ojpwz+a@+w!)q_wp0toonw7#u0=neaf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# If the 'RENDER' environment variable exists, Debug is False (Secure).
+DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = []
-
+# Allow the app to run on Render's URL
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
