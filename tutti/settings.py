@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os # Import os to handle environment variables
 import dj_database_url # Import dj_database_url to handle database URLs when deploying on Render.com
+from dotenv import load_dotenv # Import load_dotenv to load environment variables from a .env file
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))  # Load environment variables from a .env file if present
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-04o2b12+d)@n#&fmsa4ojpwz+a@+w!)q_wp0toonw7#u0=neaf'
+SECRET_KEY = os.environ.get('SECRET_KEY') # Get the secret key from environment variable for security
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # If the 'RENDER' environment variable exists, Debug is False (Secure).
@@ -143,7 +146,6 @@ LOGIN_REDIRECT_URL = 'dashboard'
 # Where to go after logging out (The Login Page)
 LOGOUT_REDIRECT_URL = 'login'
 
-from dotenv import load_dotenv
 import os
 load_dotenv()  # take environment variables from .env.file
 # M-Pesa Configuration (Sandbox)
