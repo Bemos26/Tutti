@@ -28,13 +28,17 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))  # Load environment variables from a
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY') # Get the secret key from environment variable for security
+#initially it was just her but then safe practices are to keep environmental keys ignored,, so i moved it to .env then to .gitignore so that is is not exposed when commited
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # If the 'RENDER' environment variable exists, Debug is False (Secure).
 DEBUG = 'RENDER' not in os.environ # Debug is True if RENDER variable is absent (i.e., in local development)
+#initially debug was set to be true in order to display error messages when the server crashes but now after deployment it will only display a starndard error 404 page
+
 
 # Allow the app to run on Render's URL
-ALLOWED_HOSTS = ['*'] # In production, specify your domain names here for security
+ALLOWED_HOSTS = ['*'] # In production, specify your domain names here for security. 
+#initially it was just "ALLOWED_HOSTS = []" but then after wanting to deploy it, we include the '*'
 
 # Application definition
 
@@ -45,13 +49,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tuttiapp',
-    'django_daraja',
+    'tuttiapp', #this is our app within the project folder. we created it using the command "django-admin startapp tuttiapp"
+    'django_daraja', #we install this here after doing the "pip install django_daraja" which now allows the mpesa stk push integration
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # For serving static files on Render.com. i have added it later in deployment stages of the project
+    'whitenoise.middleware.WhiteNoiseMiddleware', # For serving static files on Render.com. i have added it later in deployment stages of the project . INITIALLY IT WAS NOT THERE
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -128,7 +132,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static/' #defaul ie it existed
 STATIC_URL = '/static/'
 # This creates a folder called 'staticfiles' where Render will look for CSS
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -141,15 +145,23 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'tuttiapp.User'  #Allows us to use custom user model defined in tuttiapp/models.py instead of default Django User model
+#originally it was not there, so i added it to tell django to use my parameters when defining the user
+
+
 
 # Where to go after logging in (The Dashboard)
 LOGIN_REDIRECT_URL = 'dashboard'
+#originally it was not there so i added it to avoid going to the admin page after logging in but rather, it redirects back to the dashboard
+
+
 
 # Where to go after logging out (The Login Page)
 LOGOUT_REDIRECT_URL = 'login'
+#redirects the program where to go after loggin out, instead of going to the admin page, it just goes to the login page
 
-import os
-load_dotenv()  # take environment variables from .env.file
+
+
+load_dotenv()  # take environment variables from .env.file. These variables are the once we defined then since we want to avoid exposing then we .gitignore the .env file
 # M-Pesa Configuration (Sandbox)
 MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')  # 'sandbox' or 'production'
 MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
