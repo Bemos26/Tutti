@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY') # Get the secret key from environment 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # If the 'RENDER' environment variable exists, Debug is False (Secure).
-DEBUG = 'RENDER' not in os.environ # Debug is True if RENDER variable is absent (i.e., in local development)
+DEBUG = 'true' # Debug is True if RENDER variable is absent (i.e., in local development)
 #initially debug was set to be true in order to display error messages when the server crashes but now after deployment it will only display a starndard error 404 page
 
 
