@@ -15,14 +15,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include #make sure you also inport views so that this file is able to detect the functions in other appslike tuttiapp
 from tuttiapp import views  # Import your views here. Make sure to import the views module because it contails the dashboard function
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), #this is default and it contains the admin controls ie the superuser
+    
+    
     
     # When someone visits the homepage (''), call the dashboard view
     path('', views.dashboard, name='dashboard'), # this means that dashboard is the homepage
+    
+    
     
     #It enables /accounts/login/ and /accounts/logout/
     path('accounts/', include('django.contrib.auth.urls')),
@@ -44,3 +48,6 @@ urlpatterns = [
     
      path('signup/', views.signup, name='signup'), # New URL pattern for user signup.html page that handles both student and teacher signups
 ]
+
+#make sure that all the views that are found in views.py are defined here for them to work
+#remember you dont have to have two seperate url.py files, just use this one on the parent folder tutti to define all the urls
