@@ -26,10 +26,10 @@ SECRET_KEY = 'django-insecure-04o2b12+d)@n#&fmsa4ojpwz+a@+w!)q_wp0toonw7#u0=neaf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # If the 'RENDER' environment variable exists, Debug is False (Secure).
-DEBUG = 'RENDER' not in os.environ
+DEBUG = 'RENDER' not in os.environ # Debug is True if RENDER variable is absent (i.e., in local development)
 
 # Allow the app to run on Render's URL
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] # In production, specify your domain names here for security
 
 # Application definition
 
@@ -79,11 +79,14 @@ WSGI_APPLICATION = 'tutti.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+    'default': dj_database_url.config(
+        # Look for the DATABASE_URL environment variable,
+        # otherwise fall back to local SQLite
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+        conn_max_age=600
+    )
+} # i have changed this database configuration to use dj_database_url for easier deployment on Render.com
+#this has been done in the late stages of deployment of the project. Normally there is a predefined way that the databases behave
 
 
 # Password validation
