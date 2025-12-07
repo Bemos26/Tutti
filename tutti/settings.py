@@ -15,10 +15,12 @@ import os # Import os to handle environment variables
 import dj_database_url # Import dj_database_url to handle database URLs when deploying on Render.com
 from dotenv import load_dotenv # Import load_dotenv to load environment variables from a .env file
 
-load_dotenv(os.path.join(BASE_DIR, '.env'))  # Load environment variables from a .env file if present
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(os.path.join(BASE_DIR, '.env'))  # Load environment variables from a .env file if present
+
 
 
 # Quick-start development settings - unsuitable for production
