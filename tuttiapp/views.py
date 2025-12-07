@@ -281,3 +281,23 @@ def mark_lesson_paid(request, lesson_id):
         messages.error(request, "Not authorized.")
         
     return redirect('dashboard')
+
+
+
+
+from django.contrib.auth import login
+from .forms import TuttiSignUpForm # Import the new class in froms.py that allows user signup
+
+def signup(request):
+    if request.method == 'POST':
+        form = TuttiSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Log the user in immediately
+            login(request, user)
+            messages.success(request, "Welcome to Tutti! Your account is ready.")
+            return redirect('dashboard')
+    else:
+        form = TuttiSignUpForm()
+    
+    return render(request, 'registration/signup.html', {'form': form})
