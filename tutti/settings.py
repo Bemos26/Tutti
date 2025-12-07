@@ -124,6 +124,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+# This creates a folder called 'staticfiles' where Render will look for CSS
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# This tells Django to use Whitenoise to store files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
