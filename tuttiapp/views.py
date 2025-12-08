@@ -11,16 +11,16 @@ import json
 from .forms import MpesaPaymentForm
 from .models import validate_kenyan_phone
 
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count # this is for aggregations like total revenue
 from django.db.models import Q # For search queries
 
 # ==========================================
 # 1. THE DASHBOARD (Home Base)
 # ==========================================
-@login_required
+@login_required # Ensure only logged-in users can access
 def dashboard(request):
-    user = request.user
-    context = {}
+    user = request.user # Get the logged-in user
+    context = {} # Initialize empty context
 
     # === SCENARIO 1: THE SUPERUSER (Admin) ===
     if user.is_superuser:

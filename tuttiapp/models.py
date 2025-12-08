@@ -1,8 +1,8 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.conf import settings
-from django.core.exceptions import ValidationError
-import re
+from django.db import models # to define database models for the app
+from django.contrib.auth.models import AbstractUser # to extend the default user model which comes with django
+from django.conf import settings # to reference the custom user model wehn defining relationships
+from django.core.exceptions import ValidationError # to raise validation errors when phone number is invalid. the number must be in the format 2547XXXXXXXX
+import re # for regex validation for phone numbers when saving users at signup for M-Pesa payments
 
 #EVERY TIME YOU ADD A NEW MODE MAKE SURE TO RUN:
 # python manage.py makemigrations
@@ -18,12 +18,27 @@ def validate_kenyan_phone(value):
     if not re.match(r"^254\d{9}$", value):
         raise ValidationError(f"{value} is not a valid M-Pesa number. Use format 2547XXXXXXXX")
     return value
+'''
+This function validates and sanitizes Kenyan phone numbers for M-Pesa payments.
+It ensures the number is in the correct format before saving to the database.
+it is used in the User model to validate phone numbers.
+it makes sure the number is an m-pesa compatible number.
+'''
+
+
 
 # --- 2. THE USER (Teachers & Students) ---
 class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, blank=True, null=True, validators=[validate_kenyan_phone])
+    
+    
+'''
+This custom User model extends Django's AbstractUser to include roles (teacher/student) and a phone number for M-Pesa payments.
+The phone number is validated to ensure it is in the correct format for M-Pesa transactions.
+
+'''
 
 # --- 3. THE LESSON (The Core Logic) ---
 class Lesson(models.Model):
@@ -49,7 +64,7 @@ class Lesson(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=1500.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='SCHEDULED')
 
-    # Reminders (For later use)
+    # Reminders to notify students when almost class time
     is_student_reminder_sent = models.BooleanField(default=False)
 
     def __str__(self):
@@ -66,4 +81,4 @@ class MpesaTransaction(models.Model):
     transaction_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Tx for Lesson {self.lesson.id}"
+        return f"Tx for Lesson {self.lesson.id}" #shows which lesson this transaction is for then its id
