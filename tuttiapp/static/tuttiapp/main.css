@@ -1,0 +1,62 @@
+/* Musical Theme Colors */
+:root {
+    --tutti-purple: #4a148c;
+    --tutti-gold: #ffc107;
+    --tutti-bg: #f8f9fa;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    background-color: var(--tutti-bg);
+}
+
+h1, h2, h3, .navbar-brand {
+    font-family: 'Playfair Display', serif; /* Classical feel */
+}
+
+/* Override Bootstrap Primary Color to Purple */
+.bg-primary {
+    background-color: var(--tutti-purple) !important;
+}
+
+.text-primary {
+    color: var(--tutti-purple) !important;
+}
+
+.btn-primary {
+    background-color: var(--tutti-purple);
+    border-color: var(--tutti-purple);
+}
+
+.btn-primary:hover {
+    background-color: #38006b;
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Table Styling */
+.table thead th {
+    background-color: #f1f3f5;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Status Badges */
+.badge {
+    padding: 8px 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
