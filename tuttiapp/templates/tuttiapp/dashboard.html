@@ -1,6 +1,123 @@
 {% extends 'tuttiapp/base.html' %}
 
 {% block content %}
+{% extends 'tuttiapp/base.html' %}
+
+{% block content %}
+
+<!-- === ADMIN COMMAND CENTER === -->
+{% if is_admin %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-primary mb-3">🎻 Studio Command Center</h2>
+    </div>
+    
+    <!-- Stat Card: Revenue -->
+    <div class="col-md-4">
+        <div class="card bg-success text-white mb-3 shadow">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <p class="display-4 fw-bold">KES {{ total_revenue }}</p>
+                <small>Lifetime M-Pesa Collections</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Card: Students -->
+    <div class="col-md-4">
+        <div class="card bg-info text-white mb-3 shadow">
+            <div class="card-body">
+                <h5 class="card-title">Active Performers</h5>
+                <p class="display-4 fw-bold">{{ total_students }}</p>
+                <small>Registered Students</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Card: Teachers -->
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark mb-3 shadow">
+            <div class="card-body">
+                <h5 class="card-title">Conductors</h5>
+                <p class="display-4 fw-bold">{{ total_teachers }}</p>
+                <small>Active Teachers</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Transactions Table -->
+    <div class="col-md-7">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h5 class="mb-0">💸 Recent Transactions</h5>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Phone</th>
+                            <th>Amount</th>
+                            <th>Receipt</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in recent_transactions %}
+                        <tr>
+                            <td>{{ tx.phone_number }}</td>
+                            <td>KES {{ tx.amount }}</td>
+                            <td><small>{{ tx.mpesa_receipt_number|default:"-" }}</small></td>
+                            <td>
+                                {% if tx.is_successful %}
+                                    <span class="badge bg-success">Success</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center py-3">No transactions yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Users List -->
+    <div class="col-md-5">
+        <div class="card shadow">
+            <div class="card-header bg-white border-bottom-0 pt-3">
+                <h5 class="mb-0">👥 New Users</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for u in recent_users %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ u.username }}</strong>
+                            <div class="small text-muted">{{ u.email }}</div>
+                        </div>
+                        {% if u.is_teacher %}
+                            <span class="badge bg-primary rounded-pill">Teacher</span>
+                        {% elif u.is_student %}
+                            <span class="badge bg-info rounded-pill">Student</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill">Admin</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- === STANDARD DASHBOARD (For Teachers/Students) === -->
+{% else %}
+
 <div class="row">
     <!-- Sidebar / Profile Summary -->
     <div class="col-md-3 mb-4">
@@ -26,7 +143,7 @@
         </div>
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content (Lesson List) -->
     <div class="col-md-9">
         <div class="card p-4">
             <h2 class="mb-4 border-bottom pb-2">Upcoming Lessons</h2>
@@ -120,4 +237,9 @@
         </div>
     </div>
 </div>
+
+{% endif %}
+<!-- End Admin Check -->
+
+{% endblock %}
 {% endblock %}
