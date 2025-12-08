@@ -46,7 +46,8 @@ urlpatterns = [
     
     path('mark-paid/<int:lesson_id>/', views.mark_lesson_paid, name='mark_lesson_paid'), # New URL pattern for marking a lesson as paid
     
-     path('signup/', views.signup, name='signup'), # New URL pattern for user signup.html page that handles both student and teacher signups
+    path('signup/', views.signup, name='signup'), # New URL pattern for user signup.html page that handles both student and teacher signups
+    path('delete/<int:lesson_id>/', views.delete_lesson, name='delete_lesson'), # New URL pattern for deleting a lesson
 ]
 
 #make sure that all the views that are found in views.py are defined here for them to work
