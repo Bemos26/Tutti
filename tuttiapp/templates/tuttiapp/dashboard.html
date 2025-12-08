@@ -112,7 +112,7 @@
                                     <a href="{% url 'mark_lesson_paid' lesson.id %}" style="font-size: 0.8em; color: #28a745; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 5px;">
                                         Record Cash / Manual Pay
                                     </a>
-        {% endif %}
+                                {% endif %}
 
 
                                 {% elif lesson.status == 'RESCHEDULE_PENDING' %}
@@ -128,6 +128,17 @@
 
                                 {% else %}
                                     {{ lesson.get_status_display }}
+                                {% endif %}
+
+                                {% if user.is_teacher %}
+                                    <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px;">
+                                        <form action="{% url 'delete_lesson' lesson.id %}" method="post" onsubmit="return confirm('Are you sure? This cannot be undone.');">
+                                            {% csrf_token %}
+                                            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.8em; text-decoration: underline;">
+                                                🗑 Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 {% endif %}
 
                             
