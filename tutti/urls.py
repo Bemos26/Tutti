@@ -48,6 +48,10 @@ urlpatterns = [
     
     path('signup/', views.signup, name='signup'), # New URL pattern for user signup.html page that handles both student and teacher signups
     path('delete/<int:lesson_id>/', views.delete_lesson, name='delete_lesson'), # New URL pattern for deleting a lesson
+    
+    path('admin-panel/users/', views.manage_users, name='manage_users'),
+    path('admin-panel/delete-user/<int:user_id>/', views.delete_user, name='delete_user'),
+
 ]
 
 #make sure that all the views that are found in views.py are defined here for them to work
