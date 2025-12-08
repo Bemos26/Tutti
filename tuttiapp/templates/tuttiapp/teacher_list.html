@@ -1,28 +1,33 @@
+{% extends 'tuttiapp/base.html' %}
 
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Find a Conductor 🎻</h2>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+</div>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Find a Conductor</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .btn { background-color: #007bff; color: white; padding: 10px; text-decoration: none; border-radius: 5px; display: inline-block;}
-    </style>
-</head>
-<body>
-    <h1>Find a Conductor 🎻</h1>
-    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
-    <hr>
-    
+<div class="row">
     {% for teacher in teachers %}
-    <div class="card">
-        <h3>{{ teacher.username }}</h3>
-        <p>Email: {{ teacher.email }}</p>
-        <a href="{% url 'request_lesson' teacher.id %}" class="btn">Request Lesson</a>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="mb-3">
+                <!-- Generic Avatar -->
+                <div style="font-size: 3rem;">🎓</div>
+            </div>
+            <h4 class="card-title">{{ teacher.username|title }}</h4>
+            <p class="card-text text-muted">{{ teacher.email }}</p>
+            
+            <div class="mt-auto">
+                <a href="{% url 'request_lesson' teacher.id %}" class="btn btn-primary w-100 rounded-pill">
+                    Request Lesson
+                </a>
+            </div>
+        </div>
     </div>
     {% empty %}
-        <p>No teachers found.</p>
+        <div class="col-12 text-center py-5">
+            <p class="lead text-muted">No conductors available at the moment.</p>
+        </div>
     {% endfor %}
-</body>
-</html>
+</div>
+{% endblock %}
