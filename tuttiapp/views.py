@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Lesson, MpesaTransaction, User
@@ -301,3 +301,21 @@ def signup(request):
         form = TuttiSignUpForm()
     
     return render(request, 'registration/signup.html', {'form': form})
+
+
+
+@login_required
+def delete_lesson(request, lesson_id): # Delete a lesson that is no longer needed to avoid cluttering the dashboard
+    """
+    Allows the teacher to permanently remove a lesson.
+    """
+    lesson = get_object_or_404(Lesson, pk=lesson_id)
+    
+    # Security: Only the assigned teacher can delete
+    if request.user == lesson.teacher:
+        lesson.delete()
+        messages.success(request, "Lesson deleted successfully.")
+    else:
+        messages.error(request, "You are not authorized to delete this.")
+        
+    return redirect('dashboard')
