@@ -137,9 +137,12 @@ STATIC_URL = 'static/' #defaul ie it existed
 
 
 #added this
-STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'tuttiapp/static', # This is where we will store our static files like CSS
+]
+
 # This creates a folder called 'staticfiles' where Render will look for CSS
-STATIC_ROOT = os.path.join(BASE_DIR, 'tuttiapp/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # This tells Django to use Whitenoise to store files
 #(Forgiving - works even if files are missing)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
