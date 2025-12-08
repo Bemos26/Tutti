@@ -1,32 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Confirm Payment</title>
-    <style>
-        body { font-family: sans-serif; padding: 40px; background-color: #f4f4f9; }
-        .pay-box { background: white; padding: 30px; border-radius: 8px; max-width: 400px; margin: auto; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .amount { font-size: 2em; color: #28a745; font-weight: bold; margin: 10px 0; }
-        input { padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 4px; font-size: 1.2em; text-align: center; }
-        button { background-color: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1.1em; margin-top: 15px; width: 100%; }
-        button:hover { background-color: #218838; }
-    </style>
-</head>
-<body>
-    <div class="pay-box">
-        <h2 style="margin-top:0;">Confirm Payment</h2>
-        <p>Lesson: <strong>{{ lesson.topic }}</strong></p>
-        <div class="amount">KES {{ lesson.price }}</div>
-        
-        <form method="post">
-            {% csrf_token %}
-            <p>Enter M-Pesa Number:</p>
-            {{ form.phone_number }}
-            <br>
-            <button type="submit">Pay Now</button>
-        </form>
-        
-        <br>
-        <a href="{% url 'dashboard' %}" style="color: #666;">Cancel</a>
+{% extends 'tuttiapp/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow border-0 text-center">
+            <div class="card-body p-5">
+                <div class="mb-3 text-success">
+                    <span style="font-size: 3rem;">💸</span>
+                </div>
+                
+                <h3 class="mb-1">Confirm Payment</h3>
+                <p class="text-muted">Lesson: {{ lesson.topic }}</p>
+                
+                <div class="my-4 py-3 bg-light rounded">
+                    <span class="h1 text-dark fw-bold">KES {{ lesson.price }}</span>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3 text-start">
+                        <label class="form-label small text-muted">M-Pesa Number</label>
+                        {{ form.phone_number }} 
+                        <!-- Make sure this renders nicely or use the style block below -->
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Pay Now via M-Pesa
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4">
+                    <a href="{% url 'dashboard' %}" class="text-muted small text-decoration-none">Cancel Transaction</a>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    /* Ensure the input looks good inside the card */
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+</style>
+{% endblock %}
