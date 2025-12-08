@@ -1,166 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Tutti Dashboard</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #f8f9fa; }
-        
-        /* Badges */
-        .badge { padding: 5px 10px; border-radius: 12px; font-size: 0.8em; font-weight: bold; display: inline-block; }
-        .scheduled { background-color: #e3f2fd; color: #0d47a1; }
-        .paid { background-color: #e8f5e9; color: #1b5e20; }
-        .pending { background-color: #fff3e0; color: #e65100; }
-        .requested { background-color: #f3e5f5; color: #4a148c; }
-        .reschedule { background-color: #fff8e1; color: #f57f17; }
-        
-        .role-badge { background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; margin-left: 5px;}
-        
-        /* Action Buttons */
-        .btn-pay { background-color: #28a745; color: white; padding: 5px 10px; text-decoration: none; border-radius: 5px; font-size: 0.8em; }
-        .btn-find { background-color: purple; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;}
-        .btn-accept { color: green; font-weight: bold; text-decoration: none; margin-right: 10px; }
-        .btn-decline { color: red; font-weight: bold; text-decoration: none; }
-        .btn-complete { background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; text-decoration: none; display: inline-block; margin-top: 5px; }
-        .btn-edit { font-size:0.8em; margin-left:5px; color: orange; text-decoration: none; }
-    </style>
-</head>
-<body>
+{% extends 'tuttiapp/base.html' %}
 
-    <div class="card">
-        <h1>Welcome to Tutti! 🎵</h1>
-        
-        {% if user.is_authenticated %}
-            <p>Hello, <strong>{{ user.username }}</strong>
-               {% if user.is_teacher %}<span class="role-badge">Conductor</span>{% endif %}
-               {% if user.is_student %}<span class="role-badge">Performer</span>{% endif %}
-            </p>
-            <p style="font-size: 0.9em; color: #666;">Phone: {{ user.phone_number|default:"Not set" }}</p>
-            
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="background:none; border:none; color:red; cursor:pointer; text-decoration:underline; padding:0;">Log Out</button>
-            </form>
-
-            <hr>
-
-            {% if user.is_student %}
-                <a href="{% url 'teacher_list' %}" class="btn-find">🔍 Find a Teacher</a>
-            {% endif %}
-
-            <h2>Your Upcoming Lessons</h2>
-
-            {% if lessons %}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date & Time</th>
-                            <th>Topic</th>
-                            <th>With</th>
-                            <th>Status & Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for lesson in lessons %}
-                        <tr>
-                            <td>{{ lesson.start_time|date:"M d, H:i" }}</td>
-                            <td>{{ lesson.topic }}</td>
-                            <td>
-                                {% if user.is_teacher %}
-                                    {{ lesson.student.username }}
-                                {% else %}
-                                    {{ lesson.teacher.username }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                <!-- === LOGIC START === -->
-                                
-                                {% if lesson.status == 'REQUESTED' %}
-                                    {% if user.is_teacher %}
-                                        <a href="{% url 'approve_lesson' lesson.id %}" class="btn-accept">✔ Accept</a>
-                                        <a href="{% url 'decline_lesson' lesson.id %}" class="btn-decline">✖ Decline</a>
-                                    {% else %}
-                                        <span class="badge requested">Waiting Approval...</span>
-                                    {% endif %}
-
-                                {% elif lesson.status == 'SCHEDULED' %}
-                                    <span class="badge scheduled">Scheduled</span>
-                                    
-                                    {% if user.is_teacher %}
-                                        <!-- Edit Button -->
-                                        <a href="{% url 'reschedule_lesson' lesson.id %}" class="btn-edit">✎ Edit</a>
-                                        <br>
-                                        <!-- Mark Complete Button -->
-                                        <a href="{% url 'complete_lesson' lesson.id %}" class="btn-complete">✓ Mark Complete</a>
-                                    {% endif %}
-
-                                    
-                                {% elif lesson.status == 'PENDING_PAYMENT' %}
-    
-                                        {% if user.is_student %}
-                                            <!-- Student sees M-Pesa Button -->
-                                                 <a href="{% url 'initiate_payment' lesson.id %}" class="btn-pay">Pay via M-Pesa</a>
-    
-                                {% else %}
-                                    <!-- Teacher sees status AND Manual Override -->
-                                    <span class="badge pending">Unpaid ⚠</span>
-                                    <br>
-                                    <a href="{% url 'mark_lesson_paid' lesson.id %}" style="font-size: 0.8em; color: #28a745; text-decoration: underline; cursor: pointer; display: inline-block; margin-top: 5px;">
-                                        Record Cash / Manual Pay
-                                    </a>
-                                {% endif %}
-
-
-                                {% elif lesson.status == 'RESCHEDULE_PENDING' %}
-                                    {% if user.is_student %}
-                                        <span style="display:block; font-size: 0.8em; color: orange;">New Time Proposed!</span>
-                                        <a href="{% url 'accept_reschedule' lesson.id %}" class="btn-accept">✔ Confirm</a>
-                                    {% else %}
-                                        <span class="badge reschedule">Waiting confirmation...</span>
-                                    {% endif %}
-
-                                {% elif lesson.status == 'PAID' %}
-                                    <span class="badge paid">Paid ✔</span>
-
-                                {% else %}
-                                    {{ lesson.get_status_display }}
-                                {% endif %}
-
-                                {% if user.is_teacher %}
-                                    <div style="margin-top: 8px; border-top: 1px solid #eee; padding-top: 5px;">
-                                        <form action="{% url 'delete_lesson' lesson.id %}" method="post" onsubmit="return confirm('Are you sure? This cannot be undone.');">
-                                            {% csrf_token %}
-                                            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.8em; text-decoration: underline;">
-                                                🗑 Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% endif %}
-
-                            
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p style="text-align: center; padding: 20px; color: #666;">
-                    No lessons found. 
-                    {% if user.is_student %}Click "Find a Teacher" above!{% endif %}
-                </p>
-            {% endif %}
-
-        {% else %}
-            <div style="text-align: center; padding: 40px;">
-                <p>You are not logged in.</p>
-                <a href="{% url 'login' %}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Log in to Portal</a>
+{% block content %}
+<div class="row">
+    <!-- Sidebar / Profile Summary -->
+    <div class="col-md-3 mb-4">
+        <div class="card p-3 text-center">
+            <div class="mb-3">
+                <span style="font-size: 3rem;">
+                    {% if user.is_teacher %}🎻{% else %}🎹{% endif %}
+                </span>
             </div>
-        {% endif %}
+            <h4 class="mb-1">{{ user.username|title }}</h4>
+            <p class="text-muted small mb-2">
+                {% if user.is_teacher %}Conductor{% else %}Performer{% endif %}
+            </p>
+            <p class="badge bg-light text-dark border">
+                📞 {{ user.phone_number|default:"No Phone Set" }}
+            </p>
+            
+            {% if user.is_student %}
+                <a href="{% url 'teacher_list' %}" class="btn btn-primary w-100 mt-3">
+                    🔍 Find Teacher
+                </a>
+            {% endif %}
+        </div>
     </div>
 
-</body>
-</html>
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="card p-4">
+            <h2 class="mb-4 border-bottom pb-2">Upcoming Lessons</h2>
+
+            {% if lessons %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Topic</th>
+                                <th>With</th>
+                                <th>Status / Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lesson in lessons %}
+                            <tr>
+                                <td class="fw-bold">{{ lesson.start_time|date:"M d, H:i" }}</td>
+                                <td>{{ lesson.topic }}</td>
+                                <td>
+                                    {% if user.is_teacher %}
+                                        {{ lesson.student.username }}
+                                    {% else %}
+                                        {{ lesson.teacher.username }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <!-- LOGIC BLOCK -->
+                                    {% if lesson.status == 'REQUESTED' %}
+                                        {% if user.is_teacher %}
+                                            <a href="{% url 'approve_lesson' lesson.id %}" class="btn btn-sm btn-success">✔ Accept</a>
+                                            <a href="{% url 'decline_lesson' lesson.id %}" class="btn btn-sm btn-outline-danger">✖</a>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Pending Approval</span>
+                                        {% endif %}
+
+                                    {% elif lesson.status == 'SCHEDULED' %}
+                                        <span class="badge bg-info text-dark">Scheduled</span>
+                                        {% if user.is_teacher %}
+                                            <div class="mt-2">
+                                                <a href="{% url 'reschedule_lesson' lesson.id %}" class="text-decoration-none small text-warning me-2">Edit</a>
+                                                <a href="{% url 'complete_lesson' lesson.id %}" class="btn btn-sm btn-primary py-0">Mark Done</a>
+                                            </div>
+                                        {% endif %}
+
+                                    {% elif lesson.status == 'PENDING_PAYMENT' %}
+                                        {% if user.is_student %}
+                                            <a href="{% url 'initiate_payment' lesson.id %}" class="btn btn-sm btn-success shadow-sm">Pay via M-Pesa</a>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Unpaid ⚠</span>
+                                            <div class="mt-1">
+                                                <a href="{% url 'mark_lesson_paid' lesson.id %}" class="small text-success">Mark Paid (Cash)</a>
+                                            </div>
+                                        {% endif %}
+
+                                    {% elif lesson.status == 'RESCHEDULE_PENDING' %}
+                                        {% if user.is_student %}
+                                            <span class="d-block small text-warning">New Time?</span>
+                                            <a href="{% url 'accept_reschedule' lesson.id %}" class="btn btn-sm btn-success">Confirm</a>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Waiting Confirmation</span>
+                                        {% endif %}
+
+                                    {% elif lesson.status == 'PAID' %}
+                                        <span class="badge bg-success">Paid ✔</span>
+                                    {% endif %}
+                                    <!-- END LOGIC -->
+                                    
+                                    <!-- Delete for Teachers -->
+                                    {% if user.is_teacher %}
+                                    <form action="{% url 'delete_lesson' lesson.id %}" method="post" class="d-inline ms-2" onsubmit="return confirm('Delete this lesson?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0" title="Delete">
+                                            <small>🗑</small>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted mb-0">No lessons found on your stand.</p>
+                    <small>Time to practice! 🎹</small>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
