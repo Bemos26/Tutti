@@ -11,27 +11,51 @@ import json
 from .forms import MpesaPaymentForm
 from .models import validate_kenyan_phone
 
+from django.db.models import Sum, Count
+
 # ==========================================
 # 1. THE DASHBOARD (Home Base)
 # ==========================================
 @login_required
 def dashboard(request):
     user = request.user
-    
-    # Logic: Filter lessons based on who is logged in
-    if user.is_teacher:
+    context = {}
+
+    # === SCENARIO 1: THE SUPERUSER (Admin) ===
+    if user.is_superuser:
+        # 1. High Level Stats
+        total_students = User.objects.filter(is_student=True).count()
+        total_teachers = User.objects.filter(is_teacher=True).count()
+        
+        # Calculate Revenue (Sum of successful M-Pesa transactions)
+        # We use 'aggregate' which returns a dictionary like {'amount__sum': 5000}
+        revenue_data = MpesaTransaction.objects.filter(is_successful=True).aggregate(Sum('amount'))
+        total_revenue = revenue_data['amount__sum'] or 0
+        
+        # 2. Recent Data for the Tables
+        recent_transactions = MpesaTransaction.objects.all().order_by('-transaction_date')[:5]
+        recent_users = User.objects.all().order_by('-date_joined')[:5]
+        
+        context = {
+            'is_admin': True, # Flag to tell template to show Admin Mode
+            'total_students': total_students,
+            'total_teachers': total_teachers,
+            'total_revenue': total_revenue,
+            'recent_transactions': recent_transactions,
+            'recent_users': recent_users,
+        }
+
+    # === SCENARIO 2: THE TEACHER ===
+    elif user.is_teacher:
         my_lessons = Lesson.objects.filter(teacher=user).order_by('start_time')
+        context = {'lessons': my_lessons}
+
+    # === SCENARIO 3: THE STUDENT ===
     elif user.is_student:
         my_lessons = Lesson.objects.filter(student=user).order_by('start_time')
-    else:
-        my_lessons = Lesson.objects.none()
+        context = {'lessons': my_lessons}
 
-    context = {
-        'lessons': my_lessons
-    }
-    
     return render(request, 'tuttiapp/dashboard.html', context)
-
 
 # ==========================================
 # 2. MARKETPLACE (Find & Request Teachers)
