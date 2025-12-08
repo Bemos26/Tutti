@@ -1,27 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login | Tutti</title>
-    <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; }
-        .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        input { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; }
-        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
-        button:hover { background-color: #0056b3; }
-    </style>
-</head>
-<body>
-    <div class="login-box">
-        <h2>🎵 Login to Tutti</h2>
-        <form method="post">
-            {% csrf_token %} 
-            {{ form.as_p }}
-            <button type="submit">Log In</button>
-        </form>
-         <p style="margin-top: 20px;">
-            New to Tutti? <a href="{% url 'signup' %}">Create an Account</a>
-        </p>
-    </div>
+{% extends 'tuttiapp/base.html' %}
 
-</body>
-</html>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <div class="card shadow-lg border-0 rounded-lg mt-5">
+            <div class="card-header bg-primary text-white text-center py-4 rounded-top">
+                <h3 class="font-weight-light my-1">🎵 Login to Tutti</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger small">
+                            Invalid username or password.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="small mb-1" for="id_username">Username</label>
+                        {{ form.username }} 
+                        <!-- Note: Add class="form-control" in forms.py or handled by browser defaults -->
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="small mb-1" for="id_password">Password</label>
+                        {{ form.password }}
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Log In</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center py-3">
+                <div class="small">
+                    <a href="{% url 'signup' %}" class="text-decoration-none">Need an account? Sign up!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styling tweak just for this page to make inputs look good without widget tweaks -->
+<style>
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+    }
+</style>
+{% endblock %}
