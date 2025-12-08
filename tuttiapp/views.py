@@ -12,6 +12,7 @@ from .forms import MpesaPaymentForm
 from .models import validate_kenyan_phone
 
 from django.db.models import Sum, Count
+from django.db.models import Q # For search queries
 
 # ==========================================
 # 1. THE DASHBOARD (Home Base)
@@ -343,3 +344,53 @@ def delete_lesson(request, lesson_id): # Delete a lesson that is no longer neede
         messages.error(request, "You are not authorized to delete this.")
         
     return redirect('dashboard')
+
+
+
+
+
+@login_required
+def manage_users(request):
+    """
+    Admin-only page to view and manage all users.
+    """
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. Admins only.")
+        return redirect('dashboard')
+
+    # Get search term (if any)
+    query = request.GET.get('q')
+    
+    if query:
+        # Search by username, email, or phone
+        users = User.objects.filter(
+            Q(username__icontains=query) | 
+            Q(email__icontains=query) | 
+            Q(phone_number__icontains=query)
+        ).order_by('-date_joined')
+    else:
+        users = User.objects.all().order_by('-date_joined')
+
+    return render(request, 'tuttiapp/manage_users.html', {'users': users, 'search_term': query})
+
+@login_required
+def delete_user(request, user_id):
+    """
+    Admin-only function to delete a specific user.
+    """
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    user_to_delete = get_object_or_404(User, pk=user_id)
+    
+    # Prevent admin from deleting themselves!
+    if user_to_delete == request.user:
+        messages.error(request, "You cannot delete your own admin account!")
+        return redirect('manage_users')
+        
+    username = user_to_delete.username
+    user_to_delete.delete()
+    messages.success(request, f"User '{username}' has been deleted.")
+    
+    return redirect('manage_users')
