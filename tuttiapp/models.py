@@ -32,6 +32,18 @@ class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, blank=True, null=True, validators=[validate_kenyan_phone])
+
+    def save(self, *args, **kwargs):
+        if self.phone_number:
+            try:
+                # Sanitize phone number before saving
+                self.phone_number = validate_kenyan_phone(self.phone_number)
+            except ValidationError:
+                # If validation fails, we leave it as is (validators will catch it in forms)
+                # or we could let it raise. For now, we prefer not to crash save() calls unexpectedly.
+                pass
+        
+        super().save(*args, **kwargs)
     
     
 '''

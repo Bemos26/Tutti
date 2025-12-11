@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from .models import Lesson, MpesaTransaction, User
 from django_daraja.mpesa.core import MpesaClient
@@ -101,6 +102,7 @@ def request_lesson(request, teacher_id):
 # 3. TEACHER ACTIONS (Approve/Decline)
 # ==========================================
 @login_required
+@require_POST
 def approve_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     
@@ -115,6 +117,7 @@ def approve_lesson(request, lesson_id):
     return redirect('dashboard')
 
 @login_required
+@require_POST
 def decline_lesson(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     
@@ -161,6 +164,7 @@ def reschedule_lesson(request, lesson_id):
 
 # 2. STUDENT: Accept the new time
 @login_required
+@require_POST
 def accept_reschedule(request, lesson_id):
     lesson = get_object_or_404(Lesson, pk=lesson_id)
     
@@ -270,6 +274,7 @@ def mpesa_callback(request):
 
 
 @login_required
+@require_POST
 def complete_lesson(request, lesson_id):
     """
     Teacher marks the lesson as finished.
@@ -291,6 +296,7 @@ def complete_lesson(request, lesson_id):
 
 
 @login_required
+@require_POST
 def mark_lesson_paid(request, lesson_id):
     """
     Manual override for cash payments or testing.
@@ -330,6 +336,7 @@ def signup(request):
 
 
 @login_required
+@require_POST
 def delete_lesson(request, lesson_id): # Delete a lesson that is no longer needed to avoid cluttering the dashboard
     """
     Allows the teacher to permanently remove a lesson.
@@ -349,15 +356,11 @@ def delete_lesson(request, lesson_id): # Delete a lesson that is no longer neede
 
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def manage_users(request):
     """
     Admin-only page to view and manage all users.
     """
-    if not request.user.is_superuser:
-        messages.error(request, "Access denied. Admins only.")
-        return redirect('dashboard')
-
     # Get search term (if any)
     query = request.GET.get('q')
     
@@ -373,14 +376,12 @@ def manage_users(request):
 
     return render(request, 'tuttiapp/manage_users.html', {'users': users, 'search_term': query})
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
+@require_POST
 def delete_user(request, user_id):
     """
     Admin-only function to delete a specific user.
     """
-    if not request.user.is_superuser:
-        messages.error(request, "Access denied.")
-        return redirect('dashboard')
     
     user_to_delete = get_object_or_404(User, pk=user_id)
     

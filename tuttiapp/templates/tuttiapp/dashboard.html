@@ -8,7 +8,7 @@
     <div class="col-12">
         <h2 class="text-primary mb-3">🎻 Studio Command Center</h2>
     </div>
-    
+
     <!-- Stat Card: Revenue -->
     <div class="col-md-4">
         <div class="card bg-success text-white mb-3 shadow">
@@ -68,14 +68,16 @@
                             <td><small>{{ tx.mpesa_receipt_number|default:"-" }}</small></td>
                             <td>
                                 {% if tx.is_successful %}
-                                    <span class="badge bg-success">Success</span>
+                                <span class="badge bg-success">Success</span>
                                 {% else %}
-                                    <span class="badge bg-danger">Failed</span>
+                                <span class="badge bg-danger">Failed</span>
                                 {% endif %}
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="4" class="text-center py-3">No transactions yet.</td></tr>
+                        <tr>
+                            <td colspan="4" class="text-center py-3">No transactions yet.</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -87,67 +89,68 @@
     <div class="col-md-5">
         <div class="card shadow">
             <div class="card shadow">
-                <div class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
+                <div
+                    class="card-header bg-white border-bottom-0 pt-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">👥 New Users</h5>
                     <a href="{% url 'manage_users' %}" class="btn btn-sm btn-primary">Manage All Users</a>
                 </div>
-            <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                    {% for u in recent_users %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ u.username }}</strong>
-                            <div class="small text-muted">{{ u.email }}</div>
-                        </div>
-                        {% if u.is_teacher %}
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for u in recent_users %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ u.username }}</strong>
+                                <div class="small text-muted">{{ u.email }}</div>
+                            </div>
+                            {% if u.is_teacher %}
                             <span class="badge bg-primary rounded-pill">Teacher</span>
-                        {% elif u.is_student %}
+                            {% elif u.is_student %}
                             <span class="badge bg-info rounded-pill">Student</span>
-                        {% else %}
+                            {% else %}
                             <span class="badge bg-secondary rounded-pill">Admin</span>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- === STANDARD DASHBOARD (For Teachers/Students) === -->
-{% else %}
+    <!-- === STANDARD DASHBOARD (For Teachers/Students) === -->
+    {% else %}
 
-<div class="row">
-    <!-- Sidebar / Profile Summary -->
-    <div class="col-md-3 mb-4">
-        <div class="card p-3 text-center">
-            <div class="mb-3">
-                <span style="font-size: 3rem;">
-                    {% if user.is_teacher %}🎻{% else %}🎹{% endif %}
-                </span>
-            </div>
-            <h4 class="mb-1">{{ user.username|title }}</h4>
-            <p class="text-muted small mb-2">
-                {% if user.is_teacher %}Conductor{% else %}Performer{% endif %}
-            </p>
-            <p class="badge bg-light text-dark border">
-                📞 {{ user.phone_number|default:"No Phone Set" }}
-            </p>
-            
-            {% if user.is_student %}
+    <div class="row">
+        <!-- Sidebar / Profile Summary -->
+        <div class="col-md-3 mb-4">
+            <div class="card p-3 text-center">
+                <div class="mb-3">
+                    <span style="font-size: 3rem;">
+                        {% if user.is_teacher %}🎻{% else %}🎹{% endif %}
+                    </span>
+                </div>
+                <h4 class="mb-1">{{ user.username|title }}</h4>
+                <p class="text-muted small mb-2">
+                    {% if user.is_teacher %}Conductor{% else %}Performer{% endif %}
+                </p>
+                <p class="badge bg-light text-dark border">
+                    📞 {{ user.phone_number|default:"No Phone Set" }}
+                </p>
+
+                {% if user.is_student %}
                 <a href="{% url 'teacher_list' %}" class="btn btn-primary w-100 mt-3">
                     🔍 Find Teacher
                 </a>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
-    </div>
 
-    <!-- Main Content (Lesson List) -->
-    <div class="col-md-9">
-        <div class="card p-4">
-            <h2 class="mb-4 border-bottom pb-2">Upcoming Lessons</h2>
+        <!-- Main Content (Lesson List) -->
+        <div class="col-md-9">
+            <div class="card p-4">
+                <h2 class="mb-4 border-bottom pb-2">Upcoming Lessons</h2>
 
-            {% if lessons %}
+                {% if lessons %}
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead>
@@ -165,56 +168,79 @@
                                 <td>{{ lesson.topic }}</td>
                                 <td>
                                     {% if user.is_teacher %}
-                                        {{ lesson.student.username }}
+                                    {{ lesson.student.username }}
                                     {% else %}
-                                        {{ lesson.teacher.username }}
+                                    {{ lesson.teacher.username }}
                                     {% endif %}
                                 </td>
                                 <td>
                                     <!-- LOGIC BLOCK -->
                                     {% if lesson.status == 'REQUESTED' %}
-                                        {% if user.is_teacher %}
-                                            <a href="{% url 'approve_lesson' lesson.id %}" class="btn btn-sm btn-success">✔ Accept</a>
-                                            <a href="{% url 'decline_lesson' lesson.id %}" class="btn btn-sm btn-outline-danger">✖</a>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Pending Approval</span>
-                                        {% endif %}
+                                    {% if user.is_teacher %}
+                                    <form action="{% url 'approve_lesson' lesson.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">✔ Accept</button>
+                                    </form>
+                                    <form action="{% url 'decline_lesson' lesson.id %}" method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">✖</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Pending Approval</span>
+                                    {% endif %}
 
                                     {% elif lesson.status == 'SCHEDULED' %}
-                                        <span class="badge bg-info text-dark">Scheduled</span>
-                                        {% if user.is_teacher %}
-                                            <div class="mt-2">
-                                                <a href="{% url 'reschedule_lesson' lesson.id %}" class="text-decoration-none small text-warning me-2">Edit</a>
-                                                <a href="{% url 'complete_lesson' lesson.id %}" class="btn btn-sm btn-primary py-0">Mark Done</a>
-                                            </div>
-                                        {% endif %}
+                                    <span class="badge bg-info text-dark">Scheduled</span>
+                                    {% if user.is_teacher %}
+                                    <div class="mt-2">
+                                        <a href="{% url 'reschedule_lesson' lesson.id %}"
+                                            class="text-decoration-none small text-warning me-2">Edit</a>
+                                        <form action="{% url 'complete_lesson' lesson.id %}" method="post"
+                                            class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-primary py-0">Mark Done</button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
 
                                     {% elif lesson.status == 'PENDING_PAYMENT' %}
-                                        {% if user.is_student %}
-                                            <a href="{% url 'initiate_payment' lesson.id %}" class="btn btn-sm btn-success shadow-sm">Pay via M-Pesa</a>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Unpaid ⚠</span>
-                                            <div class="mt-1">
-                                                <a href="{% url 'mark_lesson_paid' lesson.id %}" class="small text-success">Mark Paid (Cash)</a>
-                                            </div>
-                                        {% endif %}
+                                    {% if user.is_student %}
+                                    <a href="{% url 'initiate_payment' lesson.id %}"
+                                        class="btn btn-sm btn-success shadow-sm">Pay via M-Pesa</a>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">Unpaid ⚠</span>
+                                    <div class="mt-1">
+                                        <form action="{% url 'mark_lesson_paid' lesson.id %}" method="post"
+                                            class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                class="btn btn-link small text-success p-0 text-decoration-none">Mark
+                                                Paid (Cash)</button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
 
                                     {% elif lesson.status == 'RESCHEDULE_PENDING' %}
-                                        {% if user.is_student %}
-                                            <span class="d-block small text-warning">New Time?</span>
-                                            <a href="{% url 'accept_reschedule' lesson.id %}" class="btn btn-sm btn-success">Confirm</a>
-                                        {% else %}
-                                            <span class="badge bg-warning text-dark">Waiting Confirmation</span>
-                                        {% endif %}
+                                    {% if user.is_student %}
+                                    <span class="d-block small text-warning">New Time?</span>
+                                    <form action="{% url 'accept_reschedule' lesson.id %}" method="post"
+                                        class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-success">Confirm</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">Waiting Confirmation</span>
+                                    {% endif %}
 
                                     {% elif lesson.status == 'PAID' %}
-                                        <span class="badge bg-success">Paid ✔</span>
+                                    <span class="badge bg-success">Paid ✔</span>
                                     {% endif %}
                                     <!-- END LOGIC -->
-                                    
+
                                     <!-- Delete for Teachers -->
                                     {% if user.is_teacher %}
-                                    <form action="{% url 'delete_lesson' lesson.id %}" method="post" class="d-inline ms-2" onsubmit="return confirm('Delete this lesson?');">
+                                    <form action="{% url 'delete_lesson' lesson.id %}" method="post"
+                                        class="d-inline ms-2" onsubmit="return confirm('Delete this lesson?');">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-link text-danger p-0" title="Delete">
                                             <small>🗑</small>
@@ -227,17 +253,17 @@
                         </tbody>
                     </table>
                 </div>
-            {% else %}
+                {% else %}
                 <div class="text-center py-5">
                     <p class="text-muted mb-0">No lessons found on your stand.</p>
                     <small>Time to practice! 🎹</small>
                 </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
 
-{% endif %}
-<!-- End Admin Check -->
+    {% endif %}
+    <!-- End Admin Check -->
 
-{% endblock %}
+    {% endblock %}

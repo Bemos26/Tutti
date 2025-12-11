@@ -11,34 +11,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os # Import os to handle environment variables
-import dj_database_url # Import dj_database_url to handle database URLs when deploying on Render.com
-from dotenv import load_dotenv # Import load_dotenv to load environment variables from a .env file
-
+import os
+from decouple import config, Csv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-load_dotenv(os.path.join(BASE_DIR, '.env'))  # Load environment variables from a .env file if present
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY') # Get the secret key from environment variable for security
-#initially it was just her but then safe practices are to keep environmental keys ignored,, so i moved it to .env then to .gitignore so that is is not exposed when commited
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# If the 'RENDER' environment variable exists, Debug is False (Secure).
-DEBUG = 'RENDER' not in os.environ # Debug is True if RENDER variable is absent (i.e., in local development)
-#initially debug was set to be true in order to display error messages when the server crashes but now after deployment it will only display a starndard error 404 page
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-
-# Allow the app to run on Render's URL
-ALLOWED_HOSTS = ['*'] # In production, specify your domain names here for security. 
-#initially it was just "ALLOWED_HOSTS = []" but then after wanting to deploy it, we include the '*'
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 # Application definition
 
@@ -171,13 +160,13 @@ LOGOUT_REDIRECT_URL = 'login'
 
 
 
-load_dotenv()  # take environment variables from .env.file. These variables are the once we defined then since we want to avoid exposing then we .gitignore the .env file
 # M-Pesa Configuration (Sandbox)
-MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT')  # 'sandbox' or 'production'
-MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
-MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
-# Default Sandbox Credentials (Do not change these for testing)
-MPESA_SHORTCODE = os.getenv('MPESA_SHORTCODE')
-MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
-MPESA_EXPRESS_SHORTCODE = os.getenv('MPESA_EXPRESS_SHORTCODE')
-MPESA_SHORTCODE_TYPE = os.getenv('MPESA_SHORTCODE_TYPE')
+MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT', default='sandbox')
+MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
+MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
+
+# Default Sandbox Credentials (Do not change these for testing unless needed)
+MPESA_SHORTCODE = config('MPESA_SHORTCODE', default='')
+MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
+MPESA_EXPRESS_SHORTCODE = config('MPESA_EXPRESS_SHORTCODE', default='')
+MPESA_SHORTCODE_TYPE = config('MPESA_SHORTCODE_TYPE', default='')
